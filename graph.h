@@ -7,7 +7,7 @@
 #include <map>
 
 class QTextStream;
-class Motion;
+struct Motion;
 
 class Graph
 {

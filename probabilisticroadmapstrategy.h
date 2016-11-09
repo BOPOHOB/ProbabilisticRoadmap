@@ -11,7 +11,7 @@ class ConfigurationSpace;
 class ProbabilisticRoadmapStrategy
 {
     int initialSampleSize = 100;
-    int obstaclesSampleSize = 45;
+    int obstaclesSampleSize = 25;
     int entireGraphRadius = 15;
 
     Graph buildGraph(const ConfigurationSpace& space) const;

@@ -50,7 +50,7 @@ window.onresize = function() {
 		.attr('x2', function(d) { return xScale(d[1].x); })
 		.attr('y1', function(d) { return yScale(d[0].y); })
 		.attr('y2', function(d) { return yScale(d[1].y); });
-		update();
+	update();
 };
 
 function update() {

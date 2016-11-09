@@ -81,6 +81,7 @@ Motion Graph::shortestPath(const QPointF& begin, const QPointF& end) const
 
         for (const int& id : edges[cur.second]) if (used.find(id) == used.end()) {
             if (id == endId) {
+                qDebug() << "finish touched"
                 return collectMotion(used, endId, startId);
             }
             inuse.suggest(id, cur.first + distance(curPoint, vertices.at(id)));

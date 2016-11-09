@@ -4,9 +4,12 @@
 #include <vector>
 #include <QPointF>
 class QTextStream;
+class QJsonArray;
 
-class Motion : public std::vector<QPointF>
-{};
+struct Motion : std::vector<QPointF>
+{
+    QJsonArray toJsonArray() const;
+};
 
 QTextStream& operator<< (QTextStream& out, const Motion&);
 
