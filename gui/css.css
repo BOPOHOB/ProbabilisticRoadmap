@@ -1,0 +1,56 @@
+body, html {
+	margin:0px;
+	padding:0px;
+	background:#dcdbd9;
+	overflow:  hidden;
+}
+
+.greed line {
+	stroke: rgb(80,80,80);
+	stroke-width: 2;
+}
+
+li {
+	list-style-type:none;
+}
+
+ul {
+	position:absolute;
+	background : #FFFFFF;
+	padding:15px;
+	margin:15px;
+	border-radius: 15px;
+}
+.set line {
+	stroke: rgb(128,0,128);
+	stroke-width: 4;
+}
+circle {
+	stroke: rgb(128,128,128);
+	stroke-width: 2px;
+}
+
+text {
+	font:"verdana";
+    font-size: 44px;
+    stroke: #4a6a60;
+    fill: #4c4b49;
+    box-shadow: -5px -5px 5px #000;
+}
+
+polygon {
+	stroke: #779482;
+	fill: #47657f;
+	stroke-width: 4px;
+	stroke-linecap: round;
+}
+
+.solve line {
+	 stroke:#2a5913;
+	 stroke-width:6;
+	stroke-linecap: round;
+}
+
+.solve circle {
+	fill: #Baaaa0;
+}
