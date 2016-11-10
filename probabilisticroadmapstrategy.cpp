@@ -1,15 +1,20 @@
 #include "probabilisticroadmapstrategy.h"
-#include <random>
-#include <functional>
-#include "configurationspace.h"
-#include "motion.h"
+
 #include <QDebug>
+#include <QFile>
+#include <QLineF>
+#include <QTextStream>
+
 #include <algorithm>
 #include <set>
-#include <QFile>
-#include <QTextStream>
 #include <cassert>
+#include <random>
+#include <functional>
+#include <cmath>
+
 #include "graph.h"
+#include "motion.h"
+#include "configurationspace.h"
 
 ProbabilisticRoadmapStrategy::ProbabilisticRoadmapStrategy()
 {
@@ -41,9 +46,6 @@ Graph ProbabilisticRoadmapStrategy::buildGraph(const ConfigurationSpace& space) 
 
     std::vector<std::set<int>> edges;
     edges.resize(vertices.size());
-    auto distance([](const QPointF& a, const QPointF& b)->double{
-        return sqrt(pow(a.x() - b.x(), 2) + pow(a.y() - b.y(),2));
-    });
 #ifndef M_PI
     static const double M_PI(acos(-1.));
 #endif
@@ -53,7 +55,7 @@ Graph ProbabilisticRoadmapStrategy::buildGraph(const ConfigurationSpace& space) 
         const QPointF& cur(vertices.at(i));
         std::set<int>& allied(edges[i]);
         for (int j(0); j != vertices.size(); ++j) if (i != j) {
-            if (distance(cur, vertices.at(j)) < r && space.isApparent(cur, vertices.at(j))) {
+            if (QLineF(cur, vertices.at(j)).length() < r && space.isApparent(cur, vertices.at(j))) {
                 allied.insert(j);
             }
         }
@@ -73,6 +75,7 @@ Graph ProbabilisticRoadmapStrategy::buildGraph(const ConfigurationSpace& space) 
 Motion ProbabilisticRoadmapStrategy::plane(const ConfigurationSpace& space) const
 {
     const Graph graph(buildGraph(space));
+
 #ifndef QT_NO_DEBUG
     qDebug() << "graph ready";
     QFile f(space.getName() + "_graph.json");

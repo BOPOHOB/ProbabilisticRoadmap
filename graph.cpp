@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QLineF>
 #include <QDebug>
+
 #include <utility>
 #include <stack>
 #include <cassert>
@@ -34,10 +35,6 @@ Motion Graph::shortestPath(const QPointF& begin, const QPointF& end) const
         return Motion();
     }
 
-    auto distance([](const QPointF& a, const QPointF& b)->double{
-        return sqrt(pow(a.x() - b.x(), 2) + pow(a.y() - b.y(),2));
-    });
-
     std::map<int, double> used;
 
     struct SetSet {
@@ -45,7 +42,7 @@ Motion Graph::shortestPath(const QPointF& begin, const QPointF& end) const
         std::set<int> b;
 
         SetSet(const int& startId)
-            : a{ { 0., startId} }
+            : a{ { 0., startId } }
             , b{ startId } { }
 
         std::pair<double, int> pop() {
@@ -61,7 +58,7 @@ Motion Graph::shortestPath(const QPointF& begin, const QPointF& end) const
                 a[d] = id;
             } else {
                 std::map<double, int>::iterator it(a.begin());
-                while (it != a.end() && it->second != id) {
+                while (it->second != id) {
                     ++it;
                 }
                 if (it->first > d) {
@@ -81,10 +78,12 @@ Motion Graph::shortestPath(const QPointF& begin, const QPointF& end) const
 
         for (const int& id : edges[cur.second]) if (used.find(id) == used.end()) {
             if (id == endId) {
-                qDebug() << "finish touched"
+#ifndef QT_NO_DEBUG
+                qDebug() << "finish touched";
+#endif
                 return collectMotion(used, endId, startId);
             }
-            inuse.suggest(id, cur.first + distance(curPoint, vertices.at(id)));
+            inuse.suggest(id, cur.first + QLineF(curPoint, vertices.at(id)).length());
         }
     }
 
@@ -95,6 +94,9 @@ Motion Graph::collectMotion(const std::map<int, double>& map, const int end, con
 {
     std::stack<int> stack;
     stack.push(end);
+#ifndef QT_NO_DEBUG
+    double currentD(std::numeric_limits<double>::infinity());
+#endif
     while (stack.top() != start) {
         const std::set<int> cur(edges[stack.top()]);
         std::pair<int, double> min(-1, std::numeric_limits<double>::infinity());
@@ -104,6 +106,14 @@ Motion Graph::collectMotion(const std::map<int, double>& map, const int end, con
                 min = *val;
             }
         }
+#ifndef QT_NO_DEBUG
+        if (currentD < min.second) {
+            qFatal(QString("currentD > min.second: " + QString::number(currentD) + " > " + QString::number(min.second)
+                           + " (" + QString::number(stack.top()) + ", " + QString::number(min.first) + ") "
+                           + QString::number(stack.size()) ).toLatin1().data());
+        }
+        currentD = min.second;
+#endif
         assert(min.first != -1);
         stack.push(min.first);
     }
@@ -111,13 +121,13 @@ Motion Graph::collectMotion(const std::map<int, double>& map, const int end, con
     Motion result;
     result.reserve(stack.size());
     while (!stack.empty()) {
-        if (vertices.size() <= stack.top()) {
-            qFatal((QString("vertices fail") + vertices.size() + stack.top()).toStdString().c_str());
-        }
         result.emplace_back(vertices[stack.top()]);
         stack.pop();
     }
 
+#ifndef QT_NO_DEBUG
+    qDebug() << "solved";
+#endif
     return std::move(result);
 }
 

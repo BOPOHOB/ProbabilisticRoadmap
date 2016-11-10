@@ -1,4 +1,5 @@
 #include "configurationspace.h"
+
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDebug>

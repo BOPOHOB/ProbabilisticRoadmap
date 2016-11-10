@@ -3,7 +3,9 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QLineF>
 #include <QDebug>
+
 #include <cassert>
 #include <random>
 #include <utility>
@@ -78,13 +80,10 @@ bool Polygon::isBetween(const QPointF& a, const QPointF& b) const
 
 std::vector<QPointF> Polygon::nearPointsSample(size_t count) const
 {
-    auto distance([](const QPointF& a, const QPointF& b)->double{
-        return sqrt(pow(a.x() - b.x(), 2) + pow(a.y() - b.y(),2));
-    });
     double rMax(0.0);
     double rMin(std::numeric_limits<double>::max());
     for (const QPointF& i : *this) {
-        const double dest(distance(center, i));
+        const double dest(QLineF(center, i).length());
         rMax = std::max(dest, rMax);
         rMin = std::min(dest, rMin);
     }

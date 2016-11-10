@@ -1,12 +1,12 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDebug>
-#include "sourcedata.h"
-#include "probabilisticroadmapstrategy.h"
-#include "configurationspace.h"
-#include "motion.h"
 #include <QJsonArray>
 #include <QJsonDocument>
+
+#include "sourcedata.h"
+#include "probabilisticroadmapstrategy.h"
+#include "motion.h"
 
 using namespace std;
 
@@ -18,7 +18,7 @@ int main()
         f.remove();
         f.open(QFile::WriteOnly);
         QJsonArray arr;
-        for (int j(15); --j;) {
+        for (int j(1); j--; qDebug() << j) {
             for (const QJsonValue& k : ProbabilisticRoadmapStrategy().plane(i).toJsonArray()) {
                 arr.append(k);
             }

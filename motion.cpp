@@ -1,4 +1,5 @@
 #include "motion.h"
+
 #include <QTextStream>
 #include <QJsonArray>
 #include <QJsonObject>
