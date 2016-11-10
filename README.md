@@ -3,3 +3,15 @@ In this implementation of [probabilistic roadmap](https://en.wikipedia.org/wiki/
 ## Graph creation
 To create the graph we must take a sample of points in first.
 ### Vertexes sample
+![Points shuffle](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/shuffle.png)
+
+The sample of vertexes consist of two parts. First of it have a few fertexes [uniform dirtributed](https://en.wikipedia.org/wiki/Uniform_distribution_(continuous)) on the avalible [configuration space](https://en.wikipedia.org/wiki/Configuration_space).
+
+![Points close to obstacle](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/circle.png) 
+
+The second vertexes sample [dirtributed](https://en.wikipedia.org/wiki/Uniform_distribution_(continuous)) in the circler around each obstacle.
+
+### Edges
+![Points close to obstacle](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/graph.png) 
+
+Edges come out from each point to the visible (have direct way without obstacles on it) points in the not big area of it. There is all. Graph ready to use.
