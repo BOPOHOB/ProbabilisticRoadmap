@@ -59,15 +59,6 @@ Graph ProbabilisticRoadmapStrategy::buildGraph(const ConfigurationSpace& space) 
                 allied.insert(j);
             }
         }
-        if (allied.size() > entireGraphRadius) {
-            while (allied.size() >= entireGraphRadius) {
-                std::set<int>::iterator it(allied.begin());
-                for (int i(std::uniform_int_distribution<>(0, allied.size() - 1)(gen)); i; --i) {
-                    ++it;
-                }
-                allied.erase(it);
-            }
-        }
     }
     return std::move(Graph(std::move(vertices), std::move(edges)));
 }

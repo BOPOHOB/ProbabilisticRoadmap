@@ -18,7 +18,7 @@ int main()
         f.remove();
         f.open(QFile::WriteOnly);
         QJsonArray arr;
-        for (int j(1); j--; qDebug() << j) {
+        for (int j(15); j--; qDebug() << j) {
             for (const QJsonValue& k : ProbabilisticRoadmapStrategy().plane(i).toJsonArray()) {
                 arr.append(k);
             }

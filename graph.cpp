@@ -55,7 +55,7 @@ Motion Graph::shortestPath(const QPointF& begin, const QPointF& end) const
         void suggest(int id, double d) {
             if (b.find(id) == b.end()) {
                 b.insert(id);
-                a[d] = id;
+                a.insert(std::pair<double, int>(d, id));
             } else {
                 std::map<double, int>::iterator it(a.begin());
                 while (it->second != id) {
@@ -90,31 +90,47 @@ Motion Graph::shortestPath(const QPointF& begin, const QPointF& end) const
     return Motion();
 }
 
+#include <conio.h>
+
 Motion Graph::collectMotion(const std::map<int, double>& map, const int end, const int start) const
 {
     std::stack<int> stack;
     stack.push(end);
-#ifndef QT_NO_DEBUG
-    double currentD(std::numeric_limits<double>::infinity());
-#endif
+    const std::set<int>& endNeighbours(edges[end]);
+    std::set<int>::const_iterator endNeighbour(endNeighbours.begin());
+    while (map.find(*endNeighbour) == map.end() && endNeighbour != endNeighbours.end()) {
+        ++endNeighbour;
+    }
+    assert(endNeighbour != endNeighbours.end());
+    stack.push(*endNeighbour);
     while (stack.top() != start) {
-        const std::set<int> cur(edges[stack.top()]);
+        const std::set<int> neighbours(edges[stack.top()]);
+        std::set<int>::const_iterator neighbour(neighbours.begin());
+        const QPointF& point(vertices[stack.top()]);
+        const auto pointDistance(map.find(stack.top()));
+        assert(pointDistance != map.end());
+
+        const double& distanceFromCurrent(pointDistance->second);
+        double distanceFromNeighbour;
+        double distanceToNeighbour;
         std::pair<int, double> min(-1, std::numeric_limits<double>::infinity());
-        for (const int& i : cur) {
-            const std::map<int, double>::const_iterator val(map.find(i));
-            if (val != map.end() && min.second > val->second) {
-                min = *val;
+        while (neighbour != neighbours.end()) {
+            const auto pos(map.find(*neighbour));
+            if (pos != map.end()) {
+                distanceFromNeighbour = pos->second;
+                distanceToNeighbour = QLineF(vertices[*neighbour], point).length();
+
+                if (fabs(distanceFromNeighbour + distanceToNeighbour - distanceFromCurrent) < min.second) {
+                    min.first = pos->first;
+                    min.second = fabs(distanceFromNeighbour + distanceToNeighbour - distanceFromCurrent);
+                }
             }
+
+            ++neighbour;
         }
-#ifndef QT_NO_DEBUG
-        if (currentD < min.second) {
-            qFatal(QString("currentD > min.second: " + QString::number(currentD) + " > " + QString::number(min.second)
-                           + " (" + QString::number(stack.top()) + ", " + QString::number(min.first) + ") "
-                           + QString::number(stack.size()) ).toLatin1().data());
+        if (min.first == -1) {
+            throw QString("Directed graph not allowed");
         }
-        currentD = min.second;
-#endif
-        assert(min.first != -1);
         stack.push(min.first);
     }
 
