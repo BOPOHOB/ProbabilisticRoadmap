@@ -19,6 +19,6 @@ Edges come out from each point to the visible (have direct way without obstacles
 ## results for few source data
 ![solve to spars obstacles set](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/spars.png) 
 ![solve to regular obstacles set](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/regular.png) 
-!solve to [dense obstacles set](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/dense.png) 
+![solve to [dense obstacles set](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/dense.png) 
 
 Each picture display 15 ways.
