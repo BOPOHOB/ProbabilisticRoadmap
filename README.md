@@ -12,13 +12,13 @@ The sample of vertexes consist of two parts. First of it have a few fertexes [un
 The second vertexes sample [dirtributed](https://en.wikipedia.org/wiki/Uniform_distribution_(continuous)) in the circler around each obstacle.
 
 ### Edges
-![Points close to obstacle](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/graph.png) 
+![Graph](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/graph.png) 
 
 Edges come out from each point to the visible (have direct way without obstacles on it) points in the not big area of it. There is all. Graph ready to use.
 
 ## results for few source data
-![Points close to obstacle](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/spars.png) 
-![Points close to obstacle](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/regular.png) 
-![Points close to obstacle](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/dense.png) 
+![solve to spars obstacles set](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/spars.png) 
+![solve to regular obstacles set](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/regular.png) 
+!solve to [dense obstacles set](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/dense.png) 
 
 Each picture display 15 ways.
