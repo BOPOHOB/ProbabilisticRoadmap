@@ -14,7 +14,7 @@ The second vertices sample are [dirtributed](https://en.wikipedia.org/wiki/Unifo
 ### Edges
 ![Graph](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/graph.png) 
 
-Edges come out from each point to the visible (have direct way without obstacles on it) points in the not big area of source point. There is all. Graph ready to use.
+Edges come out from each point to the visible (they are connactable by straight line without crossing obstacles) points in the small area near the source point. There is all. Graph ready to use.
 
 ## results for few source data
 ![solve to spars obstacles set](https://raw.githubusercontent.com/BOPOHOB/ProbabilisticRoadmap/master/exemplification/spars.png) 
