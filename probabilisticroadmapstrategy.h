@@ -5,7 +5,7 @@
 #include <vector>
 
 class Graph;
-class Motion;
+struct Motion;
 class ConfigurationSpace;
 
 class ProbabilisticRoadmapStrategy

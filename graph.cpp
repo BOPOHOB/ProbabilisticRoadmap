@@ -21,7 +21,7 @@ Graph::Graph(const std::vector<QPointF>& vertices, const std::vector<std::set<in
 {
 }
 
-Graph::Graph(std::vector<QPointF>&& vertices, std::vector<std::set<int>>&& edges)
+Graph::Graph(std::vector<QPointF>&& vertices, std::vector<std::set<int> >&& edges)
     : vertices(std::move(vertices))
     , edges(std::move(edges))
 {
@@ -35,35 +35,38 @@ Motion Graph::shortestPath(const QPointF& begin, const QPointF& end) const
         return Motion();
     }
 
-    std::map<int, double> used;
-
     struct SetSet {
-        std::map<double, int> a;
-        std::set<int> b;
+        std::map<Trace::mapped_type, Trace::key_type> a;
+        std::set<Trace::key_type> b;
 
         SetSet(const int& startId)
-            : a{ { 0., startId } }
+            : a{ { std::make_pair(0., startId), startId } }
             , b{ startId } { }
 
-        std::pair<double, int> pop() {
-            std::pair<double, int> v(*a.begin());
+        std::pair<Trace::mapped_type, Trace::key_type> pop() {
+            std::pair<Trace::mapped_type, Trace::key_type> v(*a.begin());
             a.erase(a.begin());
             b.erase(v.second);
             return std::move(v);
         }
 
-        void suggest(int id, double d) {
+        void insert(int id, double d, int from) {
+            b.insert(id);
+            a.insert(std::make_pair(std::make_pair(d, from), id));
+        }
+
+        void hint(int id, double d, int from) {
             if (b.find(id) == b.end()) {
-                b.insert(id);
-                a.insert(std::pair<double, int>(d, id));
+                insert(id, d, from);
             } else {
-                std::map<double, int>::iterator it(a.begin());
+                std::map<Trace::mapped_type, Trace::key_type>::iterator it(a.begin());
                 while (it->second != id) {
                     ++it;
                 }
-                if (it->first > d) {
+                if (it->first.first > d) {
                     a.erase(it);
-                    a.insert(std::pair<double, int>(d, id));
+                    b.erase(b.find(id));
+                    insert(id, d, from);
                 }
             }
         }
@@ -71,28 +74,28 @@ Motion Graph::shortestPath(const QPointF& begin, const QPointF& end) const
         bool empty() const noexcept { return a.empty(); }
     } inuse(startId);
 
+    Trace usedVertexes;
+
     while (!inuse.empty()) {
-        std::pair<double, int> cur(inuse.pop());
-        used[cur.second] = cur.first;
+        const auto cur(inuse.pop());
+        usedVertexes.emplace(cur.second, cur.first);
         const QPointF& curPoint(vertices.at(cur.second));
 
-        for (const int& id : edges[cur.second]) if (used.find(id) == used.end()) {
+        for (const int& id : edges[cur.second]) if (usedVertexes.find(id) == usedVertexes.end()) {
             if (id == endId) {
 #ifndef QT_NO_DEBUG
                 qDebug() << "finish touched";
 #endif
-                return collectMotion(used, endId, startId);
+                return collectMotion(usedVertexes, endId, startId);
             }
-            inuse.suggest(id, cur.first + QLineF(curPoint, vertices.at(id)).length());
+            inuse.hint(id, cur.first.first + QLineF(curPoint, vertices.at(id)).length(), cur.second);
         }
     }
 
     return Motion();
 }
 
-#include <conio.h>
-
-Motion Graph::collectMotion(const std::map<int, double>& map, const int end, const int start) const
+Motion Graph::collectMotion(const Trace &map, const int end, const int start) const
 {
     std::stack<int> stack;
     stack.push(end);
@@ -104,34 +107,9 @@ Motion Graph::collectMotion(const std::map<int, double>& map, const int end, con
     assert(endNeighbour != endNeighbours.end());
     stack.push(*endNeighbour);
     while (stack.top() != start) {
-        const std::set<int> neighbours(edges[stack.top()]);
-        std::set<int>::const_iterator neighbour(neighbours.begin());
-        const QPointF& point(vertices[stack.top()]);
-        const auto pointDistance(map.find(stack.top()));
-        assert(pointDistance != map.end());
-
-        const double& distanceFromCurrent(pointDistance->second);
-        double distanceFromNeighbour;
-        double distanceToNeighbour;
-        std::pair<int, double> min(-1, std::numeric_limits<double>::infinity());
-        while (neighbour != neighbours.end()) {
-            const auto pos(map.find(*neighbour));
-            if (pos != map.end()) {
-                distanceFromNeighbour = pos->second;
-                distanceToNeighbour = QLineF(vertices[*neighbour], point).length();
-
-                if (fabs(distanceFromNeighbour + distanceToNeighbour - distanceFromCurrent) < min.second) {
-                    min.first = pos->first;
-                    min.second = fabs(distanceFromNeighbour + distanceToNeighbour - distanceFromCurrent);
-                }
-            }
-
-            ++neighbour;
-        }
-        if (min.first == -1) {
-            throw QString("Directed graph not allowed");
-        }
-        stack.push(min.first);
+        const Trace::const_iterator it(map.find(stack.top()));
+        assert(it != map.end());
+        stack.push(it->second.second);
     }
 
     Motion result;
