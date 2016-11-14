@@ -38,6 +38,7 @@ std::function<bool (const Polygon::Vector2D &)> Polygon::intersectionTester(cons
                 const double x((b2 - b1) / (k1 - k2));
                 return a.holdX(x) && b.holdX(x);
             }
+            return false;
         }
     };
 }
