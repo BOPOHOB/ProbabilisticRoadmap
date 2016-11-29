@@ -74,20 +74,17 @@ Motion Graph::shortestPath(const QPointF& begin, const QPointF& end) const
         bool empty() const noexcept { return a.empty(); }
     } inuse(startId);
 
-    Trace usedVertexes;
+    Trace used;
 
     while (!inuse.empty()) {
         const auto cur(inuse.pop());
-        usedVertexes.emplace(cur.second, cur.first);
+        used.emplace(cur.second, cur.first);
         const QPointF& curPoint(vertices.at(cur.second));
+        if (cur.second == endId) {
+            return collectMotion(used, endId, startId);
+        }
 
-        for (const int& id : edges[cur.second]) if (usedVertexes.find(id) == usedVertexes.end()) {
-            if (id == endId) {
-#ifndef QT_NO_DEBUG
-                qDebug() << "finish touched";
-#endif
-                return collectMotion(usedVertexes, endId, startId);
-            }
+        for (const int& id : edges[cur.second]) if (used.find(id) == used.end()) {
             inuse.hint(id, cur.first.first + QLineF(curPoint, vertices.at(id)).length(), cur.second);
         }
     }
@@ -99,13 +96,6 @@ Motion Graph::collectMotion(const Trace &map, const int end, const int start) co
 {
     std::stack<int> stack;
     stack.push(end);
-    const std::set<int>& endNeighbours(edges[end]);
-    std::set<int>::const_iterator endNeighbour(endNeighbours.begin());
-    while (map.find(*endNeighbour) == map.end() && endNeighbour != endNeighbours.end()) {
-        ++endNeighbour;
-    }
-    assert(endNeighbour != endNeighbours.end());
-    stack.push(*endNeighbour);
     while (stack.top() != start) {
         const Trace::const_iterator it(map.find(stack.top()));
         assert(it != map.end());
