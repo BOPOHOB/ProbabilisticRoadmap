@@ -9,6 +9,8 @@
 #include <cassert>
 #include <random>
 #include <utility>
+#include <ctgmath>
+#include <cmath>
 
 Polygon::Polygon(const QJsonObject &points)
     : center(toPoint(points))
@@ -30,10 +32,14 @@ std::function<bool (const Polygon::Vector2D &)> Polygon::intersectionTester(cons
 
     return [a, k1, b1](const Vector2D& b)->bool {
         const double k2(b.k());
-        if (!isfinite(k2)) {
+        const double b2(b.b(k2));
+        if (!std::isfinite(k1) && !std::isfinite(k2)) {
+            return qFuzzyIsNull(a.a.x() - b.a.x()) && std::max(a.a.y(), a.c.y()) > std::min(b.a.y(), b.c.y()) && std::min(a.a.y(), a.c.y()) < std::max(b.a.y(), b.c.y());
+        } else if (!std::isfinite(k2)) {
             return b.holdY(k1 * b.a.x() + b1) && a.holdX(b.a.x());
+        } else if (!std::isfinite(k1)) {
+            return a.holdY(k2 * a.a.x() + b2) && b.holdX(a.a.x());
         } else {
-            const double b2(b.b(k2));
             if (k1 != k2) {
                 const double x((b2 - b1) / (k1 - k2));
                 return a.holdX(x) && b.holdX(x);
@@ -43,9 +49,19 @@ std::function<bool (const Polygon::Vector2D &)> Polygon::intersectionTester(cons
     };
 }
 
+bool Polygon::Vector2D::on(const QPointF& p) const
+{
+    if (std::isfinite(k())) {
+        return qFuzzyIsNull(k() * p.x() + b(k()) - p.y()) && holdX(p.x());
+    } else {
+        return qFuzzyIsNull(p.x() - a.x()) && holdY(p.y());
+    }
+}
+
 bool Polygon::isInside(const QPointF& inspected) const
 {
     if (!this->boundingRect().contains(inspected)) {
+
         return false;
     }
 
@@ -54,7 +70,8 @@ bool Polygon::isInside(const QPointF& inspected) const
         return false;
     }
 
-    auto test(intersectionTester(Vector2D(center, inspected)));
+    const Vector2D underTest(center, inspected);
+    auto test(intersectionTester(underTest));
 
     for (int i(1); i != this->size(); ++i) {
         if (inspected == at(i)) {
@@ -62,7 +79,10 @@ bool Polygon::isInside(const QPointF& inspected) const
         }
         count += test(Vector2D(at(i), at(i - 1)));
     }
-    test(Vector2D(first(), last()));
+    count += test(Vector2D(first(), last()));
+    for (const QPointF& vertex : *this) {
+        count += underTest.on(vertex);
+    }
 
     return !(count % 2);
 }
@@ -72,10 +92,14 @@ bool Polygon::isBetween(const QPointF& a, const QPointF& b) const
     auto test(intersectionTester(Vector2D(a, b)));
 
     for (int i(1); i != this->size(); ++i) {
-        if (test(Vector2D(at(i), at(i - 1)))) {
-            return true;
+        const Vector2D cur(at(i), at(i - 1));
+        if (!cur.on(a) && !cur.on(b) && cur.a != a && cur.a != b && cur.c != a && cur.c != b) {
+            if (test(cur)) {
+                return true;
+            }
         }
     }
+
     return false;
 }
 

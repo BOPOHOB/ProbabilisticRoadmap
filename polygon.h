@@ -9,6 +9,7 @@ class ConfigurationSpace;
 
 class Polygon : public QPolygonF
 {
+    typedef std::function<bool(double,double)> Comparer;
     struct Vector2D {
         const QPointF& a;
         const QPointF& c;
@@ -16,8 +17,10 @@ class Polygon : public QPolygonF
 
         double k() const { return (c.y() - a.y()) / (c.x() - a.x()); }
         double b(const double& k) const { return a.y() - k * a.x(); }
-        bool holdX(const double& x) const { return std::max(a.x(), c.x()) > x && std::min(a.x(), c.x()) < x; }
-        bool holdY(const double& y) const { return std::max(a.y(), c.y()) > y && std::min(a.y(), c.y()) < y; }
+        bool holdX(const double& x, Comparer greate = std::greater_equal<double>(), Comparer less = std::less_equal<double>()) const { return greate(std::max(a.x(), c.x()), x) && less(std::min(a.x(), c.x()), x); }
+        bool holdY(const double& y, Comparer greate = std::greater_equal<double>(), Comparer less = std::less_equal<double>()) const { return greate(std::max(a.y(), c.y()), y) && less(std::min(a.y(), c.y()), y); }
+
+        bool on(const QPointF& p) const;
     };
     static std::function<bool(const Vector2D&)> intersectionTester(const Vector2D&);
 
